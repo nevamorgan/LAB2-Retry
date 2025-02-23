@@ -11,7 +11,7 @@ editor: visual
 #Question 1
 library(dplyr)
 tree_dat <- read.csv("data/tree_dat.csv")
-tree_dat %>% summarise(n = n()) 
+tree_dat |> summarise(n = n()) 
 
 ##ANSWER: There are 131386 rows with the following columns: treeID, standID, stand, year, species, age, inc, and rad_ib.
 ```
@@ -19,8 +19,8 @@ tree_dat %>% summarise(n = n())
 ```{r}
 #Question 2
 
-filtered_tree_dat <- tree_dat %>%
-  filter(standID == 1) %>%
+filtered_tree_dat <- tree_dat |>
+  filter(standID == 1) |>
   tally()
 
 ##ANSWER: 979 records have been made in stand 1. 
