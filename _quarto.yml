@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: docs
+  output-dir: ghpages
 
 website:
   title: "Ecosystem Science and Sustainability 330 - Spring 2025"
