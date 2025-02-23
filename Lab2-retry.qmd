@@ -1,0 +1,263 @@
+---
+title: "Lab-2-Retry"
+author: 
+  - name: "Neva Morgan"
+    email: "neva.morgan@colostate.edu"
+format: html
+editor: visual
+---
+
+```{r}
+#Question 1
+library(dplyr)
+tree_dat <- read.csv("data/tree_dat.csv")
+tree_dat %>% summarise(n = n()) 
+
+##ANSWER: There are 131386 rows with the following columns: treeID, standID, stand, year, species, age, inc, and rad_ib.
+```
+
+```{r}
+#Question 2
+
+filtered_tree_dat <- tree_dat %>%
+  filter(standID == 1) %>%
+  tally()
+
+##ANSWER: 979 records have been made in stand 1. 
+```
+
+```{r}
+# if I want to produce this tibblee in the environment I can rename it (this is called and assignment) and print it 
+tree_count1 <- tree_dat %>%
+  filter(standID == 1)
+
+print(tree_count1)
+```
+
+```{r}
+#Question 3
+
+filtered_tree_dat <- tree_dat %>%
+  filter(species %in% c("ABBA", "PIST")) %>%
+  count(species)
+
+##ANSWER: There have been 13033 records of Abies balsamea and 4188 records of Pinus strobus. 
+```
+
+```{r}
+#Question 4
+
+last_year <- max(tree_dat$year, na.rm = TRUE) #Finding the last year in the data set; $ notates choosing the column "year" within the data; other statement is getting rid of values that don't exist
+
+tree_dat %>%
+  filter(year == last_year, age > 200) %>%
+  tally() #counting trees older than 200 years in the last year
+
+##ANSWER: There are 7 trees older than 200 years old in the last year of the dataset. 
+```
+
+```{r}
+#Question 5
+
+tree_dat %>%
+  slice_max(age)
+
+##ANSWER: The oldest tree in the data set is #269. 
+```
+
+```{r}
+#Question 6
+
+tree_dat %>% 
+  filter(year == 2001) %>% #Filter only for 2001
+  slice_max(order_by = age, n = 5) #select top by oldest tree
+
+##ANSWER: The five oldest trees are 24, 25, 1595, 1598, and 1712. 
+```
+
+```{r}
+#Question 7
+
+library(dplyr)
+library(tidyverse)
+tree_dat %>%
+  slice_sample(prop = 0.3) %>%
+  filter(year == 2002) %>%   
+  summarise(sample_size = n())
+
+#ANSWER: There are 731 trees recorded in a 30% sample of those recorded in 2002. 
+```
+
+```{r}
+#Question 8
+
+filtered_tree_dat <- tree_dat %>% 
+  filter(standID == 5, year == 2007) %>%
+  arrange(desc(rad_ib)) %>%
+  slice_head(n = 3)
+
+#ANSWER: The top three trees are 128, 157, and 135.
+```
+
+```{r}
+#Question 9
+
+filtered_tree_dat <- tree_dat %>%
+  select(treeID, standID, year, rad_ib) %>%
+  filter(standID == 3 & year == 2007) %>% 
+  slice_min(order_by = rad_ib, n = 3) %>%
+  glimpse() 
+
+#ANSWER: The smallest three trees are 50, 56, and 36.
+```
+
+```{r}
+#Question 10
+
+filtered_tree_dat %>%
+  select(-standID) %>%
+  glimpse()
+
+#ANSWER: The removal of the stand column can be found in the output table. 
+```
+
+```{r}
+#Question 11 
+
+?dplyr::select
+filtered_tree_dat %>%
+  select(contains("ID")) %>%
+  glimpse()
+
+#ANSWER: The selection pattern can be found in the output table. 
+```
+
+```{r}
+#Question 12
+
+filtered_tree_dat %>%
+  select(contains("ID"),contains("stand"))%>%
+  glimpse()
+
+#ANSWER: The selection pattern can be found in the output table. 
+```
+
+```{r}
+#Question 13
+
+tree_dat <- tree_dat %>%
+  rename(rad_ib_mm = rad_ib) %>%
+  glimpse()
+
+#ANSWER: The renaming can be found in the output data table. 
+```
+
+```{r}
+#Question 14
+
+filtered_tree_dat <- tree_dat %>% 
+  mutate(rad_ib_cm = rad_ib_mm/10) %>%
+  mutate(basal_area_m2 = 0.00007854*rad_ib_cm^2)
+
+filtered_tree_dat <- tree_dat %>%
+  filter(year == 2007, species == "POTR")
+
+mean_basal_area <- mean(filtered_tree_dat$basal_area_m2, na.rm = TRUE)
+
+print(mean_basal_area)
+
+#ANSWER: The mean basal area of POTR in 2007 is 0.009241546.
+```
+
+```{r}
+#Question 15
+
+filtered_tree_dat <- tree_dat %>%
+  mutate(established = if_else(age > 5, TRUE, FALSE, missing = NULL)) |>
+  count(established)
+
+#ANSWER: There are 122,503 established trees.
+```
+
+```{r}
+#Question 16
+
+filtered_tree_dat <- tree_dat %>%
+  mutate(DBH_class = case_when(
+    rad_ib_cm <2.5~"seedling", 
+    rad_ib_cm <=10~"sapling",
+    rad_ib_cm<=30~"pole",
+    rad_ib_cm>30~"sawlog",
+    TRUE~"NA_character"))%>%
+  filter(year == 2007) %>% 
+  count(DBH_class)
+  
+#ANSWER: Class "pole" has 473 trees, "sapling" has 1817, and "sawlog" has 1 tree.
+```
+
+```{r}
+#Question 17
+
+filtered_tree_dat <- tree_dat %>%
+  filter(year == 2007)%>%
+  summarize(
+    mean_rad = mean(rad_ib_cm),
+    sd_rad = sd(rad_ib_cm))
+
+#ANSWER: The mean is 8.046755 which means the average size of the inside bark radius at breast height is 8.046755. The standard deviation is 3.069321 which means the average variation of each value from the mean is 3.069321.
+```
+
+```{r}
+#Question 18
+
+filtered_tree_dat <- tree_dat %>%
+  filter(year == 2003) %>%
+  group_by(species)%>%
+  summarize(
+    mean_tree_age = mean(age, na.rm = TRUE)) %>%
+  slice_max (mean_tree_age, n = 3) %>%
+  glimpse()
+
+#ANSWER: The three species with the oldest mean age are THOC, FRNI, and PIST. 
+```
+
+```{r}
+#Question 19
+
+filtered_tree_dat <- tree_dat %>%
+  summarize(
+    num_unique_years = n_distinct(year),
+    first_year = min(year), 
+    last_year = max(year))
+
+#ANSWER: There are 111 unique years with records in the data set. 
+```
+
+```{r}
+#Question 20
+
+filtered_tree_dat <- tree_dat %>%
+  group_by(stand) %>%
+  summarize(
+    num_unique_years = n_distinct(year)) %>%
+  arrange(-num_unique_years) %>%
+  glimpse()
+
+#ANSWER: The stands with the largest temporal record are A1, D1, D2, D3, and F1. 
+```
+
+```{r}
+#Final Question
+
+filtered_tree_dat <- tree_dat %>%
+  mutate(growth = rad_ib_cm - lag(rad_ib_cm)) %>%
+  mutate(total_years = n()) %>%
+  filter(total_years > 10) %>%
+  filter(!is.na(growth)) %>%
+  group_by(species) %>%
+  summarise(mean_growth = mean(growth))
+
+#ANSWER: The three species with the fastest growth are PIRE, PIST, and POTR. The three species with the slowest growth are QURU, ACSA, and ACRU. 
+```
+
+#Image and caption of tree: ![The fastest growing species is PIRE (Pinus resinosa). The following is an image of this species.](img/Red-Pine1.jpg)
