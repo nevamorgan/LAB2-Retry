@@ -15,3 +15,6 @@ LaTeX: pdfLaTeX
 
 AutoAppendNewline: Yes
 StripTrailingWhitespace: Yes
+
+BuildType: Makefile
+MakefilePath: C:/Users/nevar/OneDrive - Colostate/nevamorgan-github/LAB2-Retry
